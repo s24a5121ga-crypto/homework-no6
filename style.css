@@ -82,6 +82,7 @@ header h1 {
     font-weight: 800;
     background: linear-gradient(135deg, #ffffff 30%, #a78bfa 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 8px;
     letter-spacing: -0.02em;
@@ -1212,6 +1213,139 @@ header h1 {
 .ticket-ret.won-amt {
     color: var(--win-color);
     font-weight: bold;
+}
+
+/* V4: レース情報行 */
+.race-info-row {
+    align-items: flex-end;
+}
+
+.horse-count-group {
+    max-width: 130px;
+    flex-shrink: 0;
+}
+
+/* V4: 馬券ビルダーボックス */
+.ticket-builder-box {
+    background: rgba(139, 92, 246, 0.05);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* 馬券種類グリッド */
+.bet-type-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.bet-type-btn {
+    padding: 8px 4px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.bet-type-btn:hover {
+    background: rgba(139, 92, 246, 0.2);
+    border-color: rgba(139, 92, 246, 0.5);
+}
+
+.bet-type-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+    box-shadow: 0 0 10px var(--primary-glow);
+}
+
+.bet-type-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* 馬番選択エリア */
+.selection-instruction {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+
+.horse-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.horse-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+    font-family: var(--font-sans);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    gap: 1px;
+}
+
+.horse-btn:hover {
+    background: rgba(139, 92, 246, 0.3);
+    border-color: var(--primary);
+    transform: scale(1.1);
+}
+
+.horse-btn.selected {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+    box-shadow: 0 0 8px var(--primary-glow);
+}
+
+.horse-num {
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.horse-order-badge {
+    font-size: 0.55rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1;
+}
+
+.selection-preview {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    min-height: 34px;
+}
+
+.selection-preview.complete {
+    color: var(--primary);
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    font-weight: 600;
 }
 
 /* 確定オッズ入力フィールド */

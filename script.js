@@ -27,12 +27,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalBalanceEl = document.getElementById('total-balance');
     const cardTotalBalance = document.getElementById('card-total-balance');
     
-    // V3 馬券追加フォーム
+    // V4 馬券追加フォーム
     const raceNameInput = document.getElementById('race-name');
-    const ticketNameInput = document.getElementById('ticket-name');
+    const horseCountInput = document.getElementById('horse-count');
     const ticketInvestmentInput = document.getElementById('ticket-investment');
     const ticketOddsInput = document.getElementById('ticket-odds');
     const btnAddTicket = document.getElementById('btn-add-ticket');
+    const horseSelectionArea = document.getElementById('horse-selection-area');
+    const horseGrid = document.getElementById('horse-grid');
+    const selectionInstruction = document.getElementById('selection-instruction');
+    const selectionPreview = document.getElementById('selection-preview');
+    const ticketAmountRow = document.getElementById('ticket-amount-row');
     const addedTicketsList = document.getElementById('added-tickets-list');
     const noTicketsMsg = document.getElementById('no-tickets-msg');
     
@@ -91,8 +96,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // V3用状態変数
     let currentRace = {
         raceName: "",
-        tickets: [], // 各チケット: { id, betName, investment, odds, isWon }
-        status: "setup" // "setup" または "waiting"
+        horseCount: 16,
+        tickets: [],
+        status: "setup"
     };
 
     // --- ローカルストレージ同期 ---
@@ -100,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetCurrentRace() {
         currentRace = {
             raceName: "",
+            horseCount: 16,
             tickets: [],
             status: "setup"
         };
@@ -485,7 +492,15 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // 値の復元
             raceNameInput.value = currentRace.raceName || '';
-            
+            horseCountInput.value = currentRace.horseCount || 16;
+
+            // 馬券ドラフトリセット
+            ticketDraft = { betType: null, selections: [] };
+            document.querySelectorAll('.bet-type-btn').forEach(btn => btn.classList.remove('active'));
+            horseSelectionArea.classList.add('hidden');
+            ticketAmountRow.style.display = 'none';
+            btnAddTicket.style.display = 'none';
+
             addedTicketsList.innerHTML = '';
             if (currentRace.tickets.length === 0) {
                 noTicketsMsg.style.display = 'block';
@@ -696,16 +711,118 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 馬券追加のクリックイベント ---
-    btnAddTicket.addEventListener('click', () => {
-        const betName = ticketNameInput.value.trim();
-        const invest = parseInt(ticketInvestmentInput.value, 10);
-        const odds = parseFloat(ticketOddsInput.value);
-        
-        if (!betName) {
-            alert('買い目を入力してください（例: 単勝 5）');
+    // --- V4: 馬券ビルダー ---
+    const BET_CONFIG = {
+        '単勝':  { maxSelect: 1, ordered: false, useFrames: false, label: '馬番を1頭選んでください' },
+        '複勝':  { maxSelect: 1, ordered: false, useFrames: false, label: '馬番を1頭選んでください' },
+        '枠連':  { maxSelect: 2, ordered: false, useFrames: true,  label: '枠番を2つ選んでください（順不同）' },
+        '馬連':  { maxSelect: 2, ordered: false, useFrames: false, label: '馬番を2頭選んでください（順不同）' },
+        '馬単':  { maxSelect: 2, ordered: true,  useFrames: false, label: '1着・2着の順番でタップしてください' },
+        'ワイド': { maxSelect: 2, ordered: false, useFrames: false, label: '馬番を2頭選んでください（順不同）' },
+        '3連複': { maxSelect: 3, ordered: false, useFrames: false, label: '馬番を3頭選んでください（順不同）' },
+        '3連単': { maxSelect: 3, ordered: true,  useFrames: false, label: '1着→2着→3着の順番でタップしてください' },
+    };
+
+    let ticketDraft = { betType: null, selections: [] };
+
+    document.querySelectorAll('.bet-type-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (isFinished) return;
+            ticketDraft = { betType: btn.dataset.type, selections: [] };
+            document.querySelectorAll('.bet-type-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            horseSelectionArea.classList.remove('hidden');
+            ticketAmountRow.style.display = 'none';
+            btnAddTicket.style.display = 'none';
+            renderHorseGrid();
+        });
+    });
+
+    horseCountInput.addEventListener('input', () => {
+        currentRace.horseCount = parseInt(horseCountInput.value, 10) || 16;
+        if (ticketDraft.betType) {
+            ticketDraft.selections = [];
+            renderHorseGrid();
+        }
+    });
+
+    function renderHorseGrid() {
+        const config = BET_CONFIG[ticketDraft.betType];
+        if (!config) return;
+        const count = config.useFrames ? 8 : Math.min(Math.max(parseInt(horseCountInput.value, 10) || 16, 2), 18);
+        selectionInstruction.textContent = config.label;
+        horseGrid.innerHTML = '';
+        for (let i = 1; i <= count; i++) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'horse-btn';
+            const selIdx = ticketDraft.selections.indexOf(i);
+            const numSpan = document.createElement('span');
+            numSpan.className = 'horse-num';
+            numSpan.textContent = i;
+            btn.appendChild(numSpan);
+            if (selIdx !== -1) {
+                btn.classList.add('selected');
+                if (config.ordered) {
+                    const badge = document.createElement('span');
+                    badge.className = 'horse-order-badge';
+                    badge.textContent = ['1着', '2着', '3着'][selIdx];
+                    btn.appendChild(badge);
+                }
+            }
+            btn.addEventListener('click', () => {
+                if (isFinished) return;
+                const idx = ticketDraft.selections.indexOf(i);
+                if (idx !== -1) {
+                    ticketDraft.selections = config.ordered
+                        ? ticketDraft.selections.slice(0, idx)
+                        : ticketDraft.selections.filter((_, j) => j !== idx);
+                } else if (ticketDraft.selections.length < config.maxSelect) {
+                    ticketDraft.selections.push(i);
+                }
+                renderHorseGrid();
+            });
+            horseGrid.appendChild(btn);
+        }
+        updateSelectionPreview(config);
+        const complete = ticketDraft.selections.length === config.maxSelect;
+        ticketAmountRow.style.display = complete ? '' : 'none';
+        btnAddTicket.style.display = complete ? '' : 'none';
+    }
+
+    function updateSelectionPreview(config) {
+        const remaining = config.maxSelect - ticketDraft.selections.length;
+        if (ticketDraft.selections.length === 0) {
+            selectionPreview.textContent = '選択中: なし';
+            selectionPreview.className = 'selection-preview';
             return;
         }
+        const name = generateBetName(ticketDraft.betType, ticketDraft.selections, config);
+        if (remaining > 0) {
+            selectionPreview.textContent = `選択中: ${name}（あと${remaining}${config.useFrames ? '枠' : '頭'}選択）`;
+            selectionPreview.className = 'selection-preview';
+        } else {
+            selectionPreview.textContent = `買い目決定: ${name}`;
+            selectionPreview.className = 'selection-preview complete';
+        }
+    }
+
+    function generateBetName(betType, selections, config) {
+        if (!config) config = BET_CONFIG[betType];
+        const sep = config.ordered ? '→' : '-';
+        const arr = config.ordered ? [...selections] : [...selections].sort((a, b) => a - b);
+        return `${betType} ${arr.join(sep)}`;
+    }
+
+    // --- 馬券追加のクリックイベント ---
+    btnAddTicket.addEventListener('click', () => {
+        const config = BET_CONFIG[ticketDraft.betType];
+        if (!config || ticketDraft.selections.length !== config.maxSelect) {
+            alert('馬券の買い目を選択してください');
+            return;
+        }
+        const invest = parseInt(ticketInvestmentInput.value, 10);
+        const odds = parseFloat(ticketOddsInput.value);
         if (isNaN(invest) || invest <= 0) {
             alert('購入金額を正しく入力してください');
             return;
@@ -714,10 +831,9 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('オッズを正しく入力してください（1.0以上）');
             return;
         }
-        
-        // レース名の一時保存
+        const betName = generateBetName(ticketDraft.betType, ticketDraft.selections, config);
         currentRace.raceName = raceNameInput.value.trim();
-        
+        currentRace.horseCount = parseInt(horseCountInput.value, 10) || 16;
         const newTicket = {
             id: Date.now() + Math.random(),
             betName: betName,
@@ -725,16 +841,12 @@ document.addEventListener('DOMContentLoaded', () => {
             odds: odds,
             isWon: false
         };
-        
         currentRace.tickets.push(newTicket);
+        ticketDraft = { betType: null, selections: [] };
         saveData();
         renderCurrentRace();
-        
-        // 馬券入力部のみクリア
-        ticketNameInput.value = '';
         ticketInvestmentInput.value = '';
         ticketOddsInput.value = '';
-        ticketNameInput.focus();
     });
 
     // --- 購入確定 (結果待ちへ) ---
@@ -752,6 +864,7 @@ document.addEventListener('DOMContentLoaded', () => {
             aiAdvice.style.display = 'block';
             
             currentRace.raceName = raceNameInput.value.trim();
+            currentRace.horseCount = parseInt(horseCountInput.value, 10) || 16;
             currentRace.status = "waiting";
             saveData();
             renderCurrentRace();
@@ -1074,7 +1187,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // フォームのクリア
                 raceNameInput.value = '';
-                ticketNameInput.value = '';
                 ticketInvestmentInput.value = '';
                 ticketOddsInput.value = '';
 
@@ -1133,8 +1245,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // フォームやボタンの非活性化
         raceNameInput.disabled = true;
-        ticketNameInput.disabled = true;
+        horseCountInput.disabled = true;
         ticketInvestmentInput.disabled = true;
+        document.querySelectorAll('.bet-type-btn').forEach(btn => btn.disabled = true);
         ticketOddsInput.disabled = true;
         btnAddTicket.disabled = true;
         btnConfirmPurchase.disabled = true;
@@ -1221,8 +1334,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // 活性化
             raceNameInput.disabled = false;
-            ticketNameInput.disabled = false;
+            horseCountInput.disabled = false;
             ticketInvestmentInput.disabled = false;
+            document.querySelectorAll('.bet-type-btn').forEach(btn => btn.disabled = false);
             ticketOddsInput.disabled = false;
             btnAddTicket.disabled = false;
             btnConfirmPurchase.disabled = false;

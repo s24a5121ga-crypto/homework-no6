@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>競馬使いすぎ防止サポーター AI (V3) - やなしょん</title>
+    <title>競馬使いすぎ防止サポーター AI (V4) - やなしょん</title>
     <meta name="description" content="AIがあなたの今日の競馬予算に合わせて20%刻みで損失を警告。収支推移グラフや本日のレース終了機能で、お金の使いすぎを本気で防止するサポーターツール。">
     
     <!-- Google Fonts -->
@@ -22,8 +22,8 @@
         
         <!-- ヘッダー -->
         <header>
-            <div class="badge">Version 3.0</div>
-            <h1>競馬使いすぎ防止サポーター AI V3</h1>
+            <div class="badge">Version 4.0</div>
+            <h1>競馬使いすぎ防止サポーター AI V4</h1>
             <p class="description">予算を設定し、損失割合に合わせたリアルタイムAI警告と収支グラフで、熱くなりすぎないスマートな競馬ライフを。</p>
         </header>
 
@@ -99,7 +99,7 @@
                 <!-- 左カラム：入力と診断結果 -->
                 <div class="input-and-result">
                     
-                    <!-- 入力カード (V3: 馬券単位の二段階フォーム) -->
+                    <!-- 入力カード (V4: 馬券単位の二段階フォーム) -->
                     <section class="card" id="input-card">
                         <!-- 1. 馬券登録フェーズ (race-setup-view) -->
                         <div id="race-setup-view">
@@ -108,23 +108,47 @@
                                 新規レースの登録
                             </h2>
                             <form id="race-setup-form" onsubmit="return false;">
-                                <div class="input-group">
-                                    <label for="race-name">レース名（任意）</label>
-                                    <div class="input-wrapper">
-                                        <input type="text" id="race-name" placeholder="例: 東京11R 日本ダービー" autocomplete="off">
+                                <div class="input-row race-info-row">
+                                    <div class="input-group">
+                                        <label for="race-name">レース名（任意）</label>
+                                        <div class="input-wrapper">
+                                            <input type="text" id="race-name" placeholder="例: 東京11R" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="input-group horse-count-group">
+                                        <label for="horse-count">出走頭数</label>
+                                        <div class="input-wrapper">
+                                            <input type="number" id="horse-count" placeholder="16" min="2" max="18" step="1" autocomplete="off">
+                                            <span class="unit">頭</span>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <!-- 馬券追加用サブフォーム -->
-                                <div class="ticket-input-box">
-                                    <span class="sub-title">🎫 馬券（買い目）の追加</span>
+                                <!-- V4: 馬券ビルダー -->
+                                <div class="ticket-builder-box">
+                                    <span class="sub-title">🎫 馬券の追加</span>
+
                                     <div class="input-group">
-                                        <label for="ticket-name">買い目（馬券名）</label>
-                                        <div class="input-wrapper">
-                                            <input type="text" id="ticket-name" placeholder="例: 単勝 5, 馬連 1-3" autocomplete="off">
+                                        <label>馬券種類を選択</label>
+                                        <div class="bet-type-grid">
+                                            <button type="button" class="bet-type-btn" data-type="単勝">単勝</button>
+                                            <button type="button" class="bet-type-btn" data-type="複勝">複勝</button>
+                                            <button type="button" class="bet-type-btn" data-type="枠連">枠連</button>
+                                            <button type="button" class="bet-type-btn" data-type="馬連">馬連</button>
+                                            <button type="button" class="bet-type-btn" data-type="馬単">馬単</button>
+                                            <button type="button" class="bet-type-btn" data-type="ワイド">ワイド</button>
+                                            <button type="button" class="bet-type-btn" data-type="3連複">3連複</button>
+                                            <button type="button" class="bet-type-btn" data-type="3連単">3連単</button>
                                         </div>
                                     </div>
-                                    <div class="input-row">
+
+                                    <div id="horse-selection-area" class="hidden">
+                                        <div class="selection-instruction" id="selection-instruction"></div>
+                                        <div id="horse-grid" class="horse-grid"></div>
+                                        <div class="selection-preview" id="selection-preview">選択中: なし</div>
+                                    </div>
+
+                                    <div class="input-row" id="ticket-amount-row" style="display:none;">
                                         <div class="input-group">
                                             <label for="ticket-investment">購入金額</label>
                                             <div class="input-wrapper">
@@ -140,7 +164,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <button type="button" id="btn-add-ticket" class="btn-add-ticket">
+                                    <button type="button" id="btn-add-ticket" class="btn-add-ticket" style="display:none;">
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                                         馬券をリストに追加
                                     </button>
@@ -302,7 +326,7 @@
                     <section class="card ai-card">
                         <div class="ai-character-container">
                             <div class="ai-avatar" id="ai-avatar">🤖</div>
-                            <div class="ai-name">BUDGET AI V3</div>
+                            <div class="ai-name">BUDGET AI V4</div>
                         </div>
 
                         <!-- AIのメッセージ吹き出し -->
@@ -393,7 +417,7 @@
 
         <!-- フッター -->
         <footer>
-            <p>&copy; 2026 やなしょん / 競馬使いすぎ防止サポーター AI V3</p>
+            <p>&copy; 2026 やなしょん / 競馬使いすぎ防止サポーター AI V4</p>
             <a href="../../index.html" class="back-link">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                 ポートフォリオに戻る
