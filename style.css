@@ -1386,3 +1386,142 @@ header h1 {
     margin-left: 3px;
 }
 
+/* ===== V5 モード選択 ===== */
+
+.mode-setup-card {
+    text-align: center;
+}
+
+.mode-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.mode-btn {
+    background: rgba(255,255,255,0.03);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 1.5rem 1rem;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    color: var(--text-color);
+    font-family: var(--font-sans);
+}
+
+.mode-btn:hover {
+    border-color: var(--primary);
+    transform: translateY(-3px);
+    background: rgba(139,92,246,0.08);
+}
+
+.mode-btn.selected {
+    border-color: var(--primary);
+    background: rgba(139,92,246,0.15);
+    box-shadow: 0 0 0 3px rgba(139,92,246,0.2);
+}
+
+.mode-btn[data-mode="enjoy"].selected {
+    border-color: #ec4899;
+    background: rgba(236,72,153,0.12);
+    box-shadow: 0 0 0 3px rgba(236,72,153,0.2);
+}
+
+.mode-btn[data-mode="win"].selected {
+    border-color: #f59e0b;
+    background: rgba(245,158,11,0.12);
+    box-shadow: 0 0 0 3px rgba(245,158,11,0.2);
+}
+
+.mode-icon {
+    font-size: 2.2rem;
+    display: block;
+    line-height: 1;
+}
+
+.mode-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    display: block;
+}
+
+.mode-tag {
+    font-size: 0.68rem;
+    background: rgba(255,255,255,0.06);
+    border-radius: 20px;
+    padding: 0.2rem 0.6rem;
+    color: var(--text-muted);
+    display: block;
+}
+
+.mode-desc {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    text-align: center;
+    display: block;
+}
+
+.mode-confirm-area {
+    margin-top: 1.5rem;
+}
+
+/* モードバッジ（ダッシュボード・予算設定画面） */
+.mode-badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    border-radius: 20px;
+    padding: 0.25rem 0.75rem;
+    background: rgba(139,92,246,0.15);
+    border: 1px solid rgba(139,92,246,0.4);
+    color: #a78bfa;
+}
+
+.mode-badge-pill.enjoy {
+    background: rgba(236,72,153,0.12);
+    border-color: rgba(236,72,153,0.4);
+    color: #f9a8d4;
+}
+
+.mode-badge-pill.balance {
+    background: rgba(139,92,246,0.12);
+    border-color: rgba(139,92,246,0.4);
+    color: #a78bfa;
+}
+
+.mode-badge-pill.win {
+    background: rgba(245,158,11,0.12);
+    border-color: rgba(245,158,11,0.4);
+    color: #fcd34d;
+}
+
+.selected-mode-indicator {
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.dashboard-header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+    .mode-grid {
+        grid-template-columns: 1fr;
+    }
+    .dashboard-header-right {
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.4rem;
+    }
+}
