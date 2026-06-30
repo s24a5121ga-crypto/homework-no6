@@ -3,18 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>競馬使いすぎ防止サポーター AI (V5) - やなしょん</title>
-    <meta name="description" content="目標モード（楽しむ／バランス／勝ちにいく）を選ぶとAIのアドバイス方針が変わる。予算管理・損失警告・収支グラフで、お金の使いすぎを本気で防止するサポーターツール。">
+    <title>競馬使いすぎ防止サポーター AI (V6) - やなしょん</title>
+    <meta name="description" content="AIがあなたの競馬予算を20%刻みで管理。収支推移グラフ・過去日の記録閲覧・トリガミ警告で、お金の使いすぎを本気で防止するサポーターツール。">
 
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Noto+Sans+JP:wght@300;400;700;900&display=swap" rel="stylesheet">
 
-    <!-- Chart.js for visualization -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -22,53 +19,18 @@
 
         <!-- ヘッダー -->
         <header>
-            <div class="badge">Version 5.0</div>
-            <h1>競馬使いすぎ防止サポーター AI V5</h1>
-            <p class="description">目標モードを選ぶとAIのアドバイス方針が変わる。予算管理と損失警告で、熱くなりすぎないスマートな競馬ライフを。</p>
+            <div class="badge">Version 6.0</div>
+            <h1>競馬使いすぎ防止サポーター AI V6</h1>
+            <p class="description">予算管理・リアルタイム警告・過去記録の振り返りで、熱くなりすぎないスマートな競馬ライフを。</p>
         </header>
 
-        <!-- 0. モード選択画面 (最初に表示) -->
-        <section class="card mode-setup-card" id="mode-setup-section">
-            <h2>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                今日の目標モードを選択
-            </h2>
-            <p class="setup-intro">モードによってAIのアドバイストーン・方針が変わります。今日の気分や目標に合わせて選んでください。</p>
-            <div class="mode-grid">
-                <button class="mode-btn" data-mode="enjoy">
-                    <span class="mode-icon">🌸</span>
-                    <span class="mode-title">楽しむ</span>
-                    <span class="mode-tag">損失上限重視</span>
-                    <span class="mode-desc">損失を上限内に抑えつつ、今日を楽しむことを最優先。AIも優しく穏やかにサポートします。</span>
-                </button>
-                <button class="mode-btn" data-mode="balance">
-                    <span class="mode-icon">⚖️</span>
-                    <span class="mode-title">バランス</span>
-                    <span class="mode-tag">バランス型</span>
-                    <span class="mode-desc">損失管理と回収率の両方をバランスよく管理。AIは中立的なアドバイスを行います。</span>
-                </button>
-                <button class="mode-btn" data-mode="win">
-                    <span class="mode-icon">🎯</span>
-                    <span class="mode-title">勝ちにいく</span>
-                    <span class="mode-tag">回収率重視</span>
-                    <span class="mode-desc">回収率・期待値を徹底管理。AIはシビアに、データで冷静な判断を促します。</span>
-                </button>
-            </div>
-            <div class="mode-confirm-area">
-                <button id="btn-confirm-mode" class="btn-primary btn-large" disabled>
-                    このモードで開始する →
-                </button>
-            </div>
-        </section>
-
-        <!-- 1. 予算設定画面 -->
-        <section class="card budget-setup-card hidden" id="budget-setup-section">
-            <div class="selected-mode-indicator" id="selected-mode-indicator"></div>
+        <!-- 1. 予算設定画面 (初期表示) -->
+        <section class="card budget-setup-card" id="budget-setup-section">
             <h2>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect><line x1="12" y1="4" x2="12" y2="20"></line><line x1="2" y1="12" x2="22" y2="12"></line></svg>
                 本日の予算設定
             </h2>
-            <p class="setup-intro">本日の競馬で使用する上限予算（軍資金）を設定してください。予算に合わせた警告ラインが自動生成されます。※本日中は変更できません。</p>
+            <p class="setup-intro">まずは本日の競馬で使用する上限予算（軍資金）を設定してください。予算に合わせた警告ラインが自動生成されます。※本日中は変更できません。</p>
             <form id="budget-form" onsubmit="return false;">
                 <div class="input-group">
                     <label for="budget-input">本日の軍資金（予算）</label>
@@ -93,13 +55,9 @@
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line></svg>
                         本日の戦績サマリー
                     </h2>
-                    <div class="dashboard-header-right">
-                        <span class="mode-badge-display" id="mode-badge-display"></span>
-                        <span class="budget-display">設定予算: <strong id="display-budget">¥0</strong></span>
-                    </div>
+                    <span class="budget-display">設定予算: <strong id="display-budget">¥0</strong></span>
                 </div>
 
-                <!-- 予算進捗バー -->
                 <div class="budget-progress-container">
                     <div class="progress-labels">
                         <span>損失進捗度</span>
@@ -224,9 +182,7 @@
                                             </thead>
                                             <tbody id="added-tickets-list"></tbody>
                                         </table>
-                                        <div id="no-tickets-msg" class="no-tickets">
-                                            馬券が追加されていません
-                                        </div>
+                                        <div id="no-tickets-msg" class="no-tickets">馬券が追加されていません</div>
                                     </div>
                                 </div>
 
@@ -269,7 +225,7 @@
                                 <h2 id="waiting-race-name">レース結果の入力</h2>
                             </div>
                             <p class="waiting-instruction">
-                                レースが終了しました。実際に<strong>的中した馬券にチェック</strong>を入れて、結果を確定させてください。（すべて不的中の場合は、何もチェックせず確定します）
+                                レースが終了しました。実際に的中した馬券にチェックを入れて、結果を確定させてください。
                             </p>
 
                             <div class="purchased-tickets-container">
@@ -345,11 +301,10 @@
                 <!-- 右カラム：AIキャラクター & グラフ -->
                 <div class="ai-and-chart-section">
 
-                    <!-- AIキャラクターカード -->
                     <section class="card ai-card">
                         <div class="ai-character-container">
                             <div class="ai-avatar" id="ai-avatar">🤖</div>
-                            <div class="ai-name">BUDGET AI V5</div>
+                            <div class="ai-name">BUDGET AI V6</div>
                         </div>
                         <div class="ai-bubble">
                             <div class="ai-loader" id="ai-loader" style="display: none;">
@@ -357,12 +312,11 @@
                                 <div class="loader-text" id="loader-step">分析開始中...</div>
                             </div>
                             <div class="ai-advice-content" id="ai-advice">
-                                予算の設定が完了しました。レースの収支を記録するたびに、予算の進捗状況をチェックしてリアルタイムにアドバイスします。
+                                予算の設定が完了しました。レースの収支を記録するたびに、予算の進捗状況をチェックしてリアルタイムにアドバイスします。熱くならずに楽しみましょう！
                             </div>
                         </div>
                     </section>
 
-                    <!-- 収支推移グラフカード -->
                     <section class="card chart-card">
                         <h2>
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line><line x1="2" y1="20" x2="22" y2="20"></line></svg>
@@ -397,10 +351,12 @@
                     <h4>AIからの本日の総評アドバイス</h4>
                     <p id="finish-ai-advice">ここに本日の総評が表示されます。</p>
                 </div>
-                <button id="btn-reset-day" class="btn-reset">今日のデータをクリアして新しい日を始める</button>
+                <button id="btn-reset-day" class="btn-reset">
+                    本日を記録して、新しい日を始める
+                </button>
             </section>
 
-            <!-- 過去の戦績ログ -->
+            <!-- 本日の履歴リスト -->
             <section class="card history-section">
                 <div class="history-header">
                     <h2>
@@ -430,9 +386,52 @@
             </section>
         </div>
 
+        <!-- ▼ V6新機能: 過去の記録セクション (予算設定前でも閲覧可能) -->
+        <section class="card past-records-section hidden" id="past-records-section">
+            <div class="past-records-header">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    過去の記録
+                </h2>
+                <button class="btn-clear btn-danger-clear" id="btn-clear-all-past">全データクリア</button>
+            </div>
+
+            <!-- 累計サマリー -->
+            <div class="past-summary-area" id="past-summary-area">
+                <div class="past-stats-grid">
+                    <div class="past-stat-card">
+                        <div class="label">参加日数</div>
+                        <div class="value" id="past-total-days">—</div>
+                    </div>
+                    <div class="past-stat-card">
+                        <div class="label">累計収支</div>
+                        <div class="value" id="past-cumulative-balance">—</div>
+                    </div>
+                    <div class="past-stat-card">
+                        <div class="label">通算回収率</div>
+                        <div class="value" id="past-avg-recovery">—</div>
+                    </div>
+                    <div class="past-stat-card">
+                        <div class="label">累計レース数</div>
+                        <div class="value" id="past-total-races">—</div>
+                    </div>
+                </div>
+                <div id="past-streak-area" class="past-streak-area" style="display:none;">
+                    <span id="past-streak-badge" class="past-streak-badge"></span>
+                </div>
+            </div>
+
+            <!-- 過去日カードリスト -->
+            <div id="past-days-list"></div>
+
+            <div id="no-past-records" class="no-past-records">
+                過去の記録はまだありません。<br>レースを記録して「本日を記録して、新しい日を始める」を押すと、ここに積み上がっていきます。
+            </div>
+        </section>
+
         <!-- フッター -->
         <footer>
-            <p>&copy; 2026 やなしょん / 競馬使いすぎ防止サポーター AI V5</p>
+            <p>&copy; 2026 やなしょん / 競馬使いすぎ防止サポーター AI V6</p>
             <a href="../../index.html" class="back-link">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                 ポートフォリオに戻る
@@ -440,7 +439,6 @@
         </footer>
     </div>
 
-    <!-- Script -->
     <script src="script.js"></script>
 </body>
 </html>
